@@ -1,6 +1,10 @@
 📋 Task Management System
 Um sistema completo de gerenciamento de tarefas desenvolvido em Java com Spring Boot, oferecendo uma API REST robusta para criação, organização e acompanhamento de tarefas.
-
+Mostrar Imagem
+Mostrar Imagem
+Mostrar Imagem
+Mostrar Imagem
+Mostrar Imagem
 🚀 Funcionalidades
 ✅ Gerenciamento Completo de Tarefas
 
@@ -83,35 +87,116 @@ H2 Console: http://localhost:8080/h2-console
 
 📖 Documentação da API
 🔗 Endpoints Principais
-Tarefas
-MétodoEndpointDescriçãoGET/api/tasksLista todas as tarefasGET/api/tasks/paginatedLista com paginaçãoGET/api/tasks/{id}Busca por IDPOST/api/tasksCria nova tarefaPUT/api/tasks/{id}Atualiza tarefaDELETE/api/tasks/{id}Remove tarefaPATCH/api/tasks/{id}/completeMarca como concluída
-Filtros e Buscas
-MétodoEndpointDescriçãoGET/api/tasks/status/{status}Filtra por statusGET/api/tasks/priority/{priority}Filtra por prioridadeGET/api/tasks/overdueLista tarefas em atrasoGET/api/tasks/search?keyword=termoBusca por palavra-chaveGET/api/tasks/summaryDashboard de estatísticas
-📝 Exemplo de Payload
-Criar Tarefa
-json{
-  "title": "Implementar autenticação JWT",
-  "description": "Adicionar sistema de autenticação com tokens JWT",
-  "priority": "HIGH",
-  "status": "TODO",
-  "dueDate": "2024-12-31 23:59:59",
-  "assignedTo": "dev@exemplo.com",
-  "estimatedHours": 8
-}
-Resposta de Sucesso
+📋 CRUD de Tarefas
+MétodoEndpointDescriçãoParâmetrosStatus Code🟢 GET/api/tasksLista todas as tarefas-200 OK🟢 GET/api/tasks/paginatedLista com paginação?page=0&size=10&sortBy=createdAt200 OK🟢 GET/api/tasks/{id}Busca tarefa por ID{id}: Long200 OK / 404 Not Found🟡 POST/api/tasksCria nova tarefaBody: TaskDTO201 Created / 400 Bad Request🟠 PUT/api/tasks/{id}Atualiza tarefa completa{id}: Long + Body: TaskDTO200 OK / 404 Not Found🟠 PATCH/api/tasks/{id}/completeMarca como concluída{id}: Long200 OK / 404 Not Found🔴 DELETE/api/tasks/{id}Remove tarefa{id}: Long204 No Content / 404 Not Found
+🔍 Filtros e Consultas Avançadas
+MétodoEndpointDescriçãoParâmetrosExemplo🟢 GET/api/tasks/status/{status}Filtra por statusstatus: TODO|IN_PROGRESS|DONE|CANCELLED/api/tasks/status/TODO🟢 GET/api/tasks/priority/{priority}Filtra por prioridadepriority: LOW|MEDIUM|HIGH|CRITICAL/api/tasks/priority/HIGH🟢 GET/api/tasks/overdueTarefas em atraso-/api/tasks/overdue🟢 GET/api/tasks/searchBusca por palavra-chave?keyword=string/api/tasks/search?keyword=bug🟢 GET/api/tasks/summaryDashboard estatísticas-/api/tasks/summary
+📊 Parâmetros de Paginação
+ParâmetroTipoPadrãoDescriçãopageInteger0Número da página (iniciando em 0)sizeInteger10Quantidade de itens por páginasortByStringcreatedAtCampo para ordenação
+Campos válidos para ordenação: id, title, priority, status, dueDate, createdAt, updatedAt
+📝 Exemplos Práticos de Uso
+🟡 Criando uma Nova Tarefa
+Request:
+bashcurl -X POST http://localhost:8080/api/tasks \
+  -H "Content-Type: application/json" \
+  -d '{
+    "title": "Implementar autenticação JWT",
+    "description": "Adicionar sistema de autenticação com tokens JWT para segurança da API",
+    "priority": "HIGH",
+    "status": "TODO",
+    "dueDate": "2024-12-31T23:59:59",
+    "assignedTo": "dev@exemplo.com",
+    "estimatedHours": 8
+  }'
+Response (201 Created):
 json{
   "id": 1,
   "title": "Implementar autenticação JWT",
-  "description": "Adicionar sistema de autenticação com tokens JWT",
+  "description": "Adicionar sistema de autenticação com tokens JWT para segurança da API",
   "priority": "HIGH",
   "status": "TODO",
-  "dueDate": "2024-12-31 23:59:59",
+  "dueDate": "2024-12-31T23:59:59",
   "assignedTo": "dev@exemplo.com",
   "estimatedHours": 8,
   "actualHours": null,
-  "createdAt": "2024-01-15 10:30:00",
-  "updatedAt": "2024-01-15 10:30:00"
+  "createdAt": "2024-01-15T10:30:00",
+  "updatedAt": "2024-01-15T10:30:00"
 }
+🟢 Consultando Tarefas com Paginação
+Request:
+bashcurl -X GET "http://localhost:8080/api/tasks/paginated?page=0&size=5&sortBy=priority"
+Response (200 OK):
+json{
+  "content": [
+    {
+      "id": 1,
+      "title": "Bug crítico em produção",
+      "priority": "CRITICAL",
+      "status": "IN_PROGRESS"
+    }
+  ],
+  "pageable": {
+    "pageNumber": 0,
+    "pageSize": 5,
+    "sort": {
+      "sorted": true,
+      "by": "priority"
+    }
+  },
+  "totalElements": 25,
+  "totalPages": 5,
+  "first": true,
+  "last": false
+}
+🔍 Buscando Tarefas por Status
+Request:
+bashcurl -X GET http://localhost:8080/api/tasks/status/IN_PROGRESS
+📊 Dashboard de Estatísticas
+Request:
+bashcurl -X GET http://localhost:8080/api/tasks/summary
+Response (200 OK):
+json{
+  "totalTasks": 150,
+  "todoTasks": 45,
+  "inProgressTasks": 32,
+  "doneTasks": 68,
+  "overdueTasks": 5
+}
+❌ Exemplos de Erros
+Validação de Dados (400 Bad Request):
+json{
+  "status": 400,
+  "errors": {
+    "title": "Title is required",
+    "priority": "Priority is required"
+  },
+  "timestamp": "2024-01-15T10:30:00"
+}
+Tarefa Não Encontrada (404 Not Found):
+json{
+  "status": 404,
+  "message": "Task not found with id: 999",
+  "timestamp": "2024-01-15T10:30:00"
+}
+🎯 Testando a API
+Opção 1: Usando cURL
+bash# Listar todas as tarefas
+curl -X GET http://localhost:8080/api/tasks
+
+# Criar uma tarefa simples
+curl -X POST http://localhost:8080/api/tasks \
+  -H "Content-Type: application/json" \
+  -d '{"title": "Minha primeira tarefa", "priority": "MEDIUM"}'
+Opção 2: Usando Postman
+
+Importe a collection: task-management-postman-collection.json
+Configure a base URL: http://localhost:8080
+Execute os requests de exemplo
+
+Opção 3: Usando httpie
+bash# Instalar httpie: pip install httpie
+http GET localhost:8080/api/tasks
+http POST localhost:8080/api/tasks title="Nova tarefa" priority="HIGH"
 🧪 Testes
 bash# Executar todos os testes
 ./mvnw test
@@ -180,8 +265,17 @@ Abra um Pull Request
 📄 Licença
 Este projeto está sob a licença MIT. Veja o arquivo LICENSE para mais detalhes.
 👨‍💻 Autor
-Guilherme Kertes da Costa
+Seu Nome
 
-GitHub: @Kertessz
-LinkedIn: [Meu Perfil](https://www.linkedin.com/in/guilherme-kertes-da-costa-1483b3235/)
-Email: Guilhermekertes.celular@gmail.com
+GitHub: @seu-usuario
+LinkedIn: Seu Perfil
+Email: seu.email@exemplo.com
+
+
+⭐ Gostou do projeto? Deixe uma estrela!
+
+📊 Estatísticas do Projeto
+Mostrar Imagem
+Mostrar Imagem
+Mostrar Imagem
+Mostrar Imagem
